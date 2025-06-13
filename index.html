@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html lang="ar" dir="rtl">
+<head>
+  <title>لروح ام الكل</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Times New Roman", Times, serif;
+      background-image: url("f.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      border-radius: 15px;
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 400px;
+      margin: auto;
+      padding: 25px;
+    }
+
+    .counter {
+      font-size: 36px;
+      font-weight: bold;
+      color: #198754;
+    }
+
+    .done {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    #doneMessage {
+      font-size: 20px;
+      color: #0a0909;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .footer-button {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    @media (max-width: 576px) {
+      .card {
+        padding: 20px;
+        font-size: 16px;
+      }
+
+      .counter {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card text">
+    <h1 align="center">
+      <font color="black">
+        <b>صدقة جارية لروح المرحومة<br>فتحية عبدالله</b>
+      </font>
+    </h1>
+    
+    <div id="cardArea"></div>
+
+    <div id="doneMessage" class="text-center"></div>
+
+    <div class="footer-button">
+      <button class="btn btn-danger btn-lg" onclick="resetAll()">إعادة التسبيح</button>
+    </div>
+  </div>
+
+  <script>
+    const azkar = [
+      "اللهم اغفر لها",
+      "اللهم ارحمها",
+      "اللهم ارفع درجتها",
+      "الحمد لله",
+      "سبحان الله",
+      "الله أكبر"
+    ];
+
+    const defaultCount = 15;
+
+    // ⭐ حذف التخزين السابق عشان يبدأ من الصفر
+    localStorage.removeItem('azkarCounts');
+
+    let counts = {};
+    let currentIndex = 0;
+
+    azkar.forEach(text => {
+      counts[text] = defaultCount;
+    });
+
+    const startAudio = new Audio('start.mp3');
+    let audioPlayed = false;
+
+    function renderCard() {
+      const cardArea = document.getElementById('cardArea');
+      const doneMsg = document.getElementById('doneMessage');
+      cardArea.innerHTML = '';
+      doneMsg.innerHTML = '';
+
+      if (currentIndex < azkar.length) {
+        const text = azkar[currentIndex];
+        const remaining = counts[text];
+
+        const cardHTML = `
+          <div class="card text-center">
+            <h5 class="mb-2">الدعاء رقم ${currentIndex + 1} من ${azkar.length}</h5>
+            <h4>${text}</h4>
+            <div class="counter my-2">${remaining > 0 ? remaining : '<span class="done">تم</span>'}</div>
+            <button class="btn btn-success mt-2" onclick="decrease()">تسبيح</button>
+          </div>
+        `;
+        cardArea.innerHTML = cardHTML;
+      } else {
+        doneMsg.innerHTML = "🌟 أعد التسبيح كل حسنة يجزى العبد خيرها 🌟";
+      }
+
+      localStorage.setItem('azkarCounts', JSON.stringify(counts));
+    }
+
+    function decrease() {
+      if (!audioPlayed) {
+        startAudio.play().catch(() => {});
+        audioPlayed = true;
+      }
+
+      const text = azkar[currentIndex];
+      if (counts[text] > 0) {
+        counts[text]--;
+        if (counts[text] === 0) {
+          currentIndex++;
+        }
+        renderCard();
+      }
+    }
+
+    function resetAll() {
+      if (confirm("أعد التسبيح كل حسنة يجزى العبد خيرها")) {
+        azkar.forEach(text => {
+          counts[text] = defaultCount;
+        });
+        currentIndex = 0;
+        audioPlayed = false;
+        renderCard();
+      }
+    }
+
+    renderCard();
+  </script>
+</body>
+</html>
